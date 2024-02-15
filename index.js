@@ -1,36 +1,37 @@
-
 import * as alt from "alt-server";
+import { MaleTorsoData, FemaleTorsoData } from './config.js'
 
-import {MaleTorsoData,FemaleTorsoData} from './config.js'
+const MALE_MODEL_HASH = alt.hash("mp_m_freemode_01");
+const FEMALE_MODEL_HASH = alt.hash("mp_f_freemode_01");
+
+const ARMS_COMPONENT = 3;
+const SHIRT_COMPONENT = 8;
+const JACKET_COMPONENT = 11;
 
 export function m_SetClothes(player, component, drawable, texture, pattern, force = false) {
   let torsoData;
-  if (player.model === alt.hash("mp_m_freemode_01")) {
+  switch (player.model) {
+    case MALE_MODEL_HASH:
       torsoData = MaleTorsoData;
-  } else if (player.model === alt.hash("mp_f_freemode_01")) {
+      break;
+    case FEMALE_MODEL_HASH:
       torsoData = FemaleTorsoData;
-  } else {
-      alt.log('ne mp ped');
+      break;
+    default:
       return;
   }
-    if (component !== 3 && component !== 8) {
-      player.setClothes(component, drawable, texture, pattern);
+
+  if (component !== ARMS_COMPONENT && component !== SHIRT_COMPONENT) {
+    player.setClothes(component, drawable, texture, pattern);
   }
 
-  if (component === 11) {
-      const chosenTorso = torsoData[drawable];
-  
-      alt.log(`keiciamos rankos ${chosenTorso.arms}`);
-      
-      if (force) {
-          player.setClothes(3, drawable, 0);
-      } else {
-          player.setClothes(3, chosenTorso.arms, 0);
-      }
-      
-      const validShirts = chosenTorso.validShirts;
-      const chosenShirtIndex = Math.floor(Math.random() * validShirts.length);
-      alt.log(`keiciami marskinukai ${chosenShirtIndex}`);
-      player.setClothes(8, validShirts[chosenShirtIndex], 0);
+  if (component === JACKET_COMPONENT) {
+    const chosenTorso = torsoData[drawable];
+    const armsDrawable = force ? drawable : chosenTorso.arms;
+    player.setClothes(ARMS_COMPONENT, armsDrawable, 0);
+
+    const validShirts = chosenTorso.validShirts;
+    const chosenShirtIndex = Math.floor(Math.random() * validShirts.length);
+    player.setClothes(SHIRT_COMPONENT, validShirts[chosenShirtIndex], 0);
   }
 }
